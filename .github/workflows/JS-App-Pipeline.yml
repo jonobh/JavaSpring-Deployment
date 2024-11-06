@@ -1,0 +1,35 @@
+name: 'JS App CI/CD Pipeline'
+
+# Define triggers for pipeline execution
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Special permissions required for OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  # Execute JS Build/Deploy for Dev Env
+  Build-Deploy-Dev:
+    uses: ./.github/workflows/JS-App-Template.yml
+    with:
+      environment: Dev
+    secrets:
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+
+  # Execute JS Build/Deploy for Prod Env
+  Build-Deploy-Prod:
+    needs: [Build-Deploy-Dev]
+    uses: ./.github/workflows/JS-App-Template.yml
+    with:
+      environment: Prod
+    secrets:
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
